@@ -1,0 +1,248 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Public-safe developer profile preferences without PII",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "full_name": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "profile_image": { "type": "string", "minLength": 0, "maxLength": 500 },
+        "preferred_language": { "type": "string", "enum": ["Python", "JavaScript", "TypeScript", "Java", "C", "C++"] },
+        "theme_mode": { "type": "string", "enum": ["midnight", "obsidian"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "full_name", "profile_image", "preferred_language", "theme_mode", "createdAt", "updatedAt"]
+    },
+    "UserPrivateInfo": {
+      "title": "UserPrivateInfo",
+      "description": "Isolated private PII and notification preferences for the authenticated user",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "email": { "type": "string", "minLength": 3, "maxLength": 200 },
+        "notify_scan_complete": { "type": "boolean" },
+        "notify_critical_bugs": { "type": "boolean" },
+        "notify_patch_tests": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "notify_scan_complete", "notify_critical_bugs", "notify_patch_tests", "createdAt", "updatedAt"]
+    },
+    "UserNotification": {
+      "title": "UserNotification",
+      "description": "Per-user scan, bug, and patch validation notifications",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "message": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "notification_type": { "type": "string", "enum": ["info", "success", "warning", "error"] },
+        "is_read": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "title", "message", "notification_type", "is_read", "createdAt"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Software project uploaded or cloned by a user for automated bug analysis and repair",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "backendProjectId": { "type": "number" },
+        "project_name": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "description": { "type": "string", "minLength": 0, "maxLength": 2000 },
+        "programming_language": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "source_type": { "type": "string", "enum": ["zip", "file", "github", "sample"] },
+        "repository_url": { "type": "string", "minLength": 0, "maxLength": 500 },
+        "default_branch": { "type": "string", "minLength": 0, "maxLength": 100 },
+        "commit_hash": { "type": "string", "minLength": 0, "maxLength": 100 },
+        "project_status": { "type": "string", "enum": ["Uploaded", "Scanning", "Scanned", "Error"] },
+        "file_count": { "type": "number" },
+        "bug_count": { "type": "number" },
+        "fixed_count": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "backendProjectId", "project_name", "description", "programming_language", "source_type", "repository_url", "default_branch", "commit_hash", "project_status", "file_count", "bug_count", "fixed_count", "createdAt", "updatedAt"]
+    },
+    "ProjectFile": {
+      "title": "ProjectFile",
+      "description": "Source file metadata and bounded content snapshot for a project",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "projectId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "file_name": { "type": "string", "minLength": 1, "maxLength": 255 },
+        "file_path": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "file_extension": { "type": "string", "minLength": 0, "maxLength": 32 },
+        "file_size": { "type": "number" },
+        "programming_language": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "content": { "type": "string", "minLength": 0, "maxLength": 250000 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "projectId", "file_name", "file_path", "file_extension", "file_size", "programming_language", "content", "createdAt", "updatedAt"]
+    },
+    "ScanJob": {
+      "title": "ScanJob",
+      "description": "Scan execution job status and stage progress for a project",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "projectId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "backendScanId": { "type": "number" },
+        "scan_status": { "type": "string", "enum": ["Pending", "Running", "Completed", "Failed", "Cancelled"] },
+        "current_stage": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "progress_percentage": { "type": "number" },
+        "total_files": { "type": "number" },
+        "scanned_files": { "type": "number" },
+        "total_bugs": { "type": "number" },
+        "error_message": { "type": "string", "minLength": 0, "maxLength": 2000 },
+        "startedAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "projectId", "backendScanId", "scan_status", "current_stage", "progress_percentage", "total_files", "scanned_files", "total_bugs", "error_message", "startedAt", "updatedAt"]
+    },
+    "BugRecord": {
+      "title": "BugRecord",
+      "description": "Detected bug, static evidence, and root-cause explanation",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "projectId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "backendBugId": { "type": "number" },
+        "bug_code": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "bug_title": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "bug_description": { "type": "string", "minLength": 0, "maxLength": 4000 },
+        "bug_category": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "severity": { "type": "string", "enum": ["Critical", "High", "Medium", "Low"] },
+        "confidence_score": { "type": "number" },
+        "analyzer_source": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "evidence": { "type": "string", "minLength": 0, "maxLength": 2000 },
+        "file_path": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "start_line": { "type": "number" },
+        "end_line": { "type": "number" },
+        "original_code": { "type": "string", "minLength": 0, "maxLength": 20000 },
+        "root_cause": { "type": "string", "minLength": 0, "maxLength": 4000 },
+        "why_it_occurs": { "type": "string", "minLength": 0, "maxLength": 4000 },
+        "triggering_condition": { "type": "string", "minLength": 0, "maxLength": 2000 },
+        "expected_behavior": { "type": "string", "minLength": 0, "maxLength": 2000 },
+        "actual_behavior": { "type": "string", "minLength": 0, "maxLength": 2000 },
+        "potential_impact": { "type": "string", "minLength": 0, "maxLength": 2000 },
+        "suggested_solution": { "type": "string", "minLength": 0, "maxLength": 4000 },
+        "bug_status": { "type": "string", "enum": ["Open", "In Review", "Patched", "Fixed", "Dismissed"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "projectId", "backendBugId", "bug_code", "bug_title", "bug_description", "bug_category", "severity", "confidence_score", "analyzer_source", "evidence", "file_path", "start_line", "end_line", "original_code", "root_cause", "why_it_occurs", "triggering_condition", "expected_behavior", "actual_behavior", "potential_impact", "suggested_solution", "bug_status", "createdAt", "updatedAt"]
+    },
+    "PatchRecord": {
+      "title": "PatchRecord",
+      "description": "Candidate or applied patch with diff, approval state, and validation status",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "projectId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "backendPatchId": { "type": "number" },
+        "bugId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "bug_code": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "bug_title": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "file_path": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "severity": { "type": "string", "enum": ["Critical", "High", "Medium", "Low"] },
+        "original_code": { "type": "string", "minLength": 0, "maxLength": 250000 },
+        "proposed_code": { "type": "string", "minLength": 0, "maxLength": 250000 },
+        "code_diff": { "type": "string", "minLength": 0, "maxLength": 250000 },
+        "explanation": { "type": "string", "minLength": 0, "maxLength": 4000 },
+        "repair_reason": { "type": "string", "minLength": 0, "maxLength": 2000 },
+        "original_file_hash": { "type": "string", "minLength": 0, "maxLength": 128 },
+        "patch_status": { "type": "string", "enum": ["Pending Approval", "Approved", "Rejected", "Applied", "Rolled Back"] },
+        "validation_status": { "type": "string", "enum": ["Validation Incomplete", "Tests Passed", "Tests Failed"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "projectId", "backendPatchId", "bugId", "bug_code", "bug_title", "file_path", "severity", "original_code", "proposed_code", "code_diff", "explanation", "repair_reason", "original_file_hash", "patch_status", "validation_status", "createdAt", "updatedAt"]
+    },
+    "TestResultRecord": {
+      "title": "TestResultRecord",
+      "description": "Before-fix and after-fix sandboxed test execution result",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "projectId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "patchId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "phase": { "type": "string", "enum": ["before", "after"] },
+        "test_name": { "type": "string", "minLength": 1, "maxLength": 250 },
+        "test_description": { "type": "string", "minLength": 0, "maxLength": 1000 },
+        "test_status": { "type": "string", "enum": ["Passed", "Failed"] },
+        "execution_time": { "type": "number" },
+        "error_message": { "type": "string", "minLength": 0, "maxLength": 2000 },
+        "output": { "type": "string", "minLength": 0, "maxLength": 2000 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "projectId", "patchId", "phase", "test_name", "test_description", "test_status", "execution_time", "error_message", "output", "createdAt"]
+    },
+    "ChangeHistoryRecord": {
+      "title": "ChangeHistoryRecord",
+      "description": "Immutable audit log entry for project, bug, patch, and test events",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "projectId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "project_name": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "bug_code": { "type": "string", "minLength": 0, "maxLength": 40 },
+        "patch_id": { "type": "number" },
+        "patch_status": { "type": "string", "minLength": 0, "maxLength": 40 },
+        "action_type": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "previous_value": { "type": "string", "minLength": 0, "maxLength": 500 },
+        "new_value": { "type": "string", "minLength": 0, "maxLength": 500 },
+        "description": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "projectId", "project_name", "bug_code", "patch_id", "patch_status", "action_type", "previous_value", "new_value", "description", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Developer profile and non-PII workspace preferences"
+    },
+    "/users/{userId}/private/{docId}": {
+      "schema": { "$ref": "#/entities/UserPrivateInfo" },
+      "description": "Private PII (email) and notification preferences restricted strictly to the owner"
+    },
+    "/users/{userId}/notifications/{notificationId}": {
+      "schema": { "$ref": "#/entities/UserNotification" },
+      "description": "Per-user activity and validation notifications"
+    },
+    "/projects/{projectId}": {
+      "schema": { "$ref": "#/entities/Project" },
+      "description": "Top-level software projects owned by authenticated users"
+    },
+    "/projects/{projectId}/files/{fileId}": {
+      "schema": { "$ref": "#/entities/ProjectFile" },
+      "description": "Source files belonging to a project"
+    },
+    "/projects/{projectId}/scans/{scanId}": {
+      "schema": { "$ref": "#/entities/ScanJob" },
+      "description": "Scan jobs belonging to a project"
+    },
+    "/projects/{projectId}/bugs/{bugId}": {
+      "schema": { "$ref": "#/entities/BugRecord" },
+      "description": "Detected bugs and root-cause analyses belonging to a project"
+    },
+    "/projects/{projectId}/patches/{patchId}": {
+      "schema": { "$ref": "#/entities/PatchRecord" },
+      "description": "Candidate and applied patches belonging to a project"
+    },
+    "/projects/{projectId}/testResults/{resultId}": {
+      "schema": { "$ref": "#/entities/TestResultRecord" },
+      "description": "Sandboxed test results belonging to a project"
+    },
+    "/projects/{projectId}/history/{historyId}": {
+      "schema": { "$ref": "#/entities/ChangeHistoryRecord" },
+      "description": "Audit change history belonging to a project"
+    }
+  }
+}

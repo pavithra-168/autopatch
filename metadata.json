@@ -1,0 +1,8 @@
+{
+  "name": "Remix AutoPatch",
+  "description": "Autonomous software bug detection, root-cause analysis, and safe code repair platform.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

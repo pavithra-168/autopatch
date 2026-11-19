@@ -1,0 +1,14 @@
+"""Arithmetic calculation utilities."""
+
+
+def add(a: float, b: float) -> float:
+    return a + b
+
+
+def divide(a: float, b: float) -> float:
+    return a / b
+
+
+def average(values: list[float]) -> float:
+    total = sum(values)
+    return total / len(values)

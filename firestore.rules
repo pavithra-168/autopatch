@@ -1,0 +1,496 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net (Default-Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // -----------------------------------------------------------------------
+    // Global Hardened Primitives
+    // -----------------------------------------------------------------------
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isProjectOwner(projectId) {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/projects/$(projectId)) &&
+        get(/databases/$(database)/documents/projects/$(projectId)).data.userId == request.auth.uid;
+    }
+
+    // -----------------------------------------------------------------------
+    // Validation Blueprints
+    // -----------------------------------------------------------------------
+    function isValidUserProfile(data) {
+      return data.keys().hasAll([
+          'uid', 'full_name', 'profile_image', 'preferred_language', 'theme_mode', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'uid', 'full_name', 'profile_image', 'preferred_language', 'theme_mode', 'createdAt', 'updatedAt'
+        ]) &&
+        isValidId(data.uid) &&
+        data.uid == request.auth.uid &&
+        data.full_name is string && data.full_name.size() >= 1 && data.full_name.size() <= 120 &&
+        data.profile_image is string && data.profile_image.size() <= 500 &&
+        data.preferred_language is string &&
+        data.preferred_language in ['Python', 'JavaScript', 'TypeScript', 'Java', 'C', 'C++'] &&
+        data.theme_mode is string &&
+        data.theme_mode in ['midnight', 'obsidian'] &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidUserPrivateInfo(data) {
+      return data.keys().hasAll([
+          'uid', 'email', 'notify_scan_complete', 'notify_critical_bugs', 'notify_patch_tests', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'uid', 'email', 'notify_scan_complete', 'notify_critical_bugs', 'notify_patch_tests', 'createdAt', 'updatedAt'
+        ]) &&
+        isValidId(data.uid) &&
+        data.uid == request.auth.uid &&
+        data.email is string && data.email.size() >= 3 && data.email.size() <= 200 &&
+        data.notify_scan_complete is bool &&
+        data.notify_critical_bugs is bool &&
+        data.notify_patch_tests is bool &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidNotification(data) {
+      return data.keys().hasAll(['userId', 'title', 'message', 'notification_type', 'is_read', 'createdAt']) &&
+        data.keys().hasOnly(['userId', 'title', 'message', 'notification_type', 'is_read', 'createdAt']) &&
+        isValidId(data.userId) &&
+        data.userId == request.auth.uid &&
+        data.title is string && data.title.size() >= 1 && data.title.size() <= 200 &&
+        data.message is string && data.message.size() >= 1 && data.message.size() <= 1000 &&
+        data.notification_type is string && data.notification_type in ['info', 'success', 'warning', 'error'] &&
+        data.is_read is bool &&
+        data.createdAt is timestamp;
+    }
+
+    function isValidProject(data) {
+      return data.keys().hasAll([
+          'userId', 'backendProjectId', 'project_name', 'description', 'programming_language',
+          'source_type', 'repository_url', 'default_branch', 'commit_hash', 'project_status',
+          'file_count', 'bug_count', 'fixed_count', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'userId', 'backendProjectId', 'project_name', 'description', 'programming_language',
+          'source_type', 'repository_url', 'default_branch', 'commit_hash', 'project_status',
+          'file_count', 'bug_count', 'fixed_count', 'createdAt', 'updatedAt'
+        ]) &&
+        isValidId(data.userId) &&
+        data.userId == request.auth.uid &&
+        data.backendProjectId is number &&
+        data.project_name is string && data.project_name.size() >= 1 && data.project_name.size() <= 200 &&
+        data.description is string && data.description.size() <= 2000 &&
+        data.programming_language is string && data.programming_language.size() >= 1 && data.programming_language.size() <= 40 &&
+        data.source_type is string && data.source_type in ['zip', 'file', 'github', 'sample'] &&
+        data.repository_url is string && data.repository_url.size() <= 500 &&
+        data.default_branch is string && data.default_branch.size() <= 100 &&
+        data.commit_hash is string && data.commit_hash.size() <= 100 &&
+        data.project_status is string && data.project_status in ['Uploaded', 'Scanning', 'Scanned', 'Error'] &&
+        data.file_count is number && data.file_count >= 0 &&
+        data.bug_count is number && data.bug_count >= 0 &&
+        data.fixed_count is number && data.fixed_count >= 0 &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidProjectFile(data, projectId) {
+      return data.keys().hasAll([
+          'userId', 'projectId', 'file_name', 'file_path', 'file_extension',
+          'file_size', 'programming_language', 'content', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'userId', 'projectId', 'file_name', 'file_path', 'file_extension',
+          'file_size', 'programming_language', 'content', 'createdAt', 'updatedAt'
+        ]) &&
+        isValidId(data.userId) &&
+        data.userId == request.auth.uid &&
+        isValidId(data.projectId) &&
+        data.projectId == projectId &&
+        data.file_name is string && data.file_name.size() >= 1 && data.file_name.size() <= 255 &&
+        data.file_path is string && data.file_path.size() >= 1 && data.file_path.size() <= 500 &&
+        data.file_extension is string && data.file_extension.size() <= 32 &&
+        data.file_size is number && data.file_size >= 0 &&
+        data.programming_language is string && data.programming_language.size() >= 1 && data.programming_language.size() <= 40 &&
+        data.content is string && data.content.size() <= 250000 &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidScan(data, projectId) {
+      return data.keys().hasAll([
+          'userId', 'projectId', 'backendScanId', 'scan_status', 'current_stage',
+          'progress_percentage', 'total_files', 'scanned_files', 'total_bugs',
+          'error_message', 'startedAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'userId', 'projectId', 'backendScanId', 'scan_status', 'current_stage',
+          'progress_percentage', 'total_files', 'scanned_files', 'total_bugs',
+          'error_message', 'startedAt', 'updatedAt'
+        ]) &&
+        isValidId(data.userId) &&
+        data.userId == request.auth.uid &&
+        isValidId(data.projectId) &&
+        data.projectId == projectId &&
+        data.backendScanId is number &&
+        data.scan_status is string && data.scan_status in ['Pending', 'Running', 'Completed', 'Failed', 'Cancelled'] &&
+        data.current_stage is string && data.current_stage.size() >= 1 && data.current_stage.size() <= 120 &&
+        data.progress_percentage is number && data.progress_percentage >= 0 && data.progress_percentage <= 100 &&
+        data.total_files is number && data.total_files >= 0 &&
+        data.scanned_files is number && data.scanned_files >= 0 &&
+        data.total_bugs is number && data.total_bugs >= 0 &&
+        data.error_message is string && data.error_message.size() <= 2000 &&
+        data.startedAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidBug(data, projectId) {
+      return data.keys().hasAll([
+          'userId', 'projectId', 'backendBugId', 'bug_code', 'bug_title', 'bug_description',
+          'bug_category', 'severity', 'confidence_score', 'analyzer_source', 'evidence',
+          'file_path', 'start_line', 'end_line', 'original_code', 'root_cause',
+          'why_it_occurs', 'triggering_condition', 'expected_behavior', 'actual_behavior',
+          'potential_impact', 'suggested_solution', 'bug_status', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'userId', 'projectId', 'backendBugId', 'bug_code', 'bug_title', 'bug_description',
+          'bug_category', 'severity', 'confidence_score', 'analyzer_source', 'evidence',
+          'file_path', 'start_line', 'end_line', 'original_code', 'root_cause',
+          'why_it_occurs', 'triggering_condition', 'expected_behavior', 'actual_behavior',
+          'potential_impact', 'suggested_solution', 'bug_status', 'createdAt', 'updatedAt'
+        ]) &&
+        isValidId(data.userId) &&
+        data.userId == request.auth.uid &&
+        isValidId(data.projectId) &&
+        data.projectId == projectId &&
+        data.backendBugId is number &&
+        data.bug_code is string && data.bug_code.size() >= 1 && data.bug_code.size() <= 40 &&
+        data.bug_title is string && data.bug_title.size() >= 1 && data.bug_title.size() <= 300 &&
+        data.bug_description is string && data.bug_description.size() <= 4000 &&
+        data.bug_category is string && data.bug_category.size() >= 1 && data.bug_category.size() <= 80 &&
+        data.severity is string && data.severity in ['Critical', 'High', 'Medium', 'Low'] &&
+        data.confidence_score is number && data.confidence_score >= 0 && data.confidence_score <= 1 &&
+        data.analyzer_source is string && data.analyzer_source.size() >= 1 && data.analyzer_source.size() <= 100 &&
+        data.evidence is string && data.evidence.size() <= 2000 &&
+        data.file_path is string && data.file_path.size() >= 1 && data.file_path.size() <= 500 &&
+        data.start_line is number && data.start_line >= 1 &&
+        data.end_line is number && data.end_line >= 1 &&
+        data.original_code is string && data.original_code.size() <= 20000 &&
+        data.root_cause is string && data.root_cause.size() <= 4000 &&
+        data.why_it_occurs is string && data.why_it_occurs.size() <= 4000 &&
+        data.triggering_condition is string && data.triggering_condition.size() <= 2000 &&
+        data.expected_behavior is string && data.expected_behavior.size() <= 2000 &&
+        data.actual_behavior is string && data.actual_behavior.size() <= 2000 &&
+        data.potential_impact is string && data.potential_impact.size() <= 2000 &&
+        data.suggested_solution is string && data.suggested_solution.size() <= 4000 &&
+        data.bug_status is string && data.bug_status in ['Open', 'In Review', 'Patched', 'Fixed', 'Dismissed'] &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidPatch(data, projectId) {
+      return data.keys().hasAll([
+          'userId', 'projectId', 'backendPatchId', 'bugId', 'bug_code', 'bug_title',
+          'file_path', 'severity', 'original_code', 'proposed_code', 'code_diff',
+          'explanation', 'repair_reason', 'original_file_hash', 'patch_status',
+          'validation_status', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'userId', 'projectId', 'backendPatchId', 'bugId', 'bug_code', 'bug_title',
+          'file_path', 'severity', 'original_code', 'proposed_code', 'code_diff',
+          'explanation', 'repair_reason', 'original_file_hash', 'patch_status',
+          'validation_status', 'createdAt', 'updatedAt'
+        ]) &&
+        isValidId(data.userId) &&
+        data.userId == request.auth.uid &&
+        isValidId(data.projectId) &&
+        data.projectId == projectId &&
+        data.backendPatchId is number &&
+        isValidId(data.bugId) &&
+        data.bug_code is string && data.bug_code.size() >= 1 && data.bug_code.size() <= 40 &&
+        data.bug_title is string && data.bug_title.size() >= 1 && data.bug_title.size() <= 300 &&
+        data.file_path is string && data.file_path.size() >= 1 && data.file_path.size() <= 500 &&
+        data.severity is string && data.severity in ['Critical', 'High', 'Medium', 'Low'] &&
+        data.original_code is string && data.original_code.size() <= 250000 &&
+        data.proposed_code is string && data.proposed_code.size() <= 250000 &&
+        data.code_diff is string && data.code_diff.size() <= 250000 &&
+        data.explanation is string && data.explanation.size() <= 4000 &&
+        data.repair_reason is string && data.repair_reason.size() <= 2000 &&
+        data.original_file_hash is string && data.original_file_hash.size() <= 128 &&
+        data.patch_status is string && data.patch_status in ['Pending Approval', 'Approved', 'Rejected', 'Applied', 'Rolled Back'] &&
+        data.validation_status is string && data.validation_status in ['Validation Incomplete', 'Tests Passed', 'Tests Failed'] &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidTestResult(data, projectId) {
+      return data.keys().hasAll([
+          'userId', 'projectId', 'patchId', 'phase', 'test_name',
+          'test_description', 'test_status', 'execution_time', 'error_message', 'output', 'createdAt'
+        ]) &&
+        data.keys().hasOnly([
+          'userId', 'projectId', 'patchId', 'phase', 'test_name',
+          'test_description', 'test_status', 'execution_time', 'error_message', 'output', 'createdAt'
+        ]) &&
+        isValidId(data.userId) &&
+        data.userId == request.auth.uid &&
+        isValidId(data.projectId) &&
+        data.projectId == projectId &&
+        isValidId(data.patchId) &&
+        data.phase is string && data.phase in ['before', 'after'] &&
+        data.test_name is string && data.test_name.size() >= 1 && data.test_name.size() <= 250 &&
+        data.test_description is string && data.test_description.size() <= 1000 &&
+        data.test_status is string && data.test_status in ['Passed', 'Failed'] &&
+        data.execution_time is number && data.execution_time >= 0 &&
+        data.error_message is string && data.error_message.size() <= 2000 &&
+        data.output is string && data.output.size() <= 2000 &&
+        data.createdAt is timestamp;
+    }
+
+    function isValidHistoryRecord(data, projectId) {
+      return data.keys().hasAll([
+          'userId', 'projectId', 'project_name', 'bug_code', 'patch_id',
+          'patch_status', 'action_type', 'previous_value', 'new_value', 'description', 'createdAt'
+        ]) &&
+        data.keys().hasOnly([
+          'userId', 'projectId', 'project_name', 'bug_code', 'patch_id',
+          'patch_status', 'action_type', 'previous_value', 'new_value', 'description', 'createdAt'
+        ]) &&
+        isValidId(data.userId) &&
+        data.userId == request.auth.uid &&
+        isValidId(data.projectId) &&
+        data.projectId == projectId &&
+        data.project_name is string && data.project_name.size() >= 1 && data.project_name.size() <= 200 &&
+        data.bug_code is string && data.bug_code.size() <= 40 &&
+        data.patch_id is number &&
+        data.patch_status is string && data.patch_status.size() <= 40 &&
+        data.action_type is string && data.action_type.size() >= 1 && data.action_type.size() <= 80 &&
+        data.previous_value is string && data.previous_value.size() <= 500 &&
+        data.new_value is string && data.new_value.size() <= 500 &&
+        data.description is string && data.description.size() >= 1 && data.description.size() <= 1000 &&
+        data.createdAt is timestamp;
+    }
+
+    // -----------------------------------------------------------------------
+    // Users, Private PII & Notifications
+    // -----------------------------------------------------------------------
+    match /users/{userId} {
+      allow get: if isValidId(userId) && isOwner(userId);
+      allow list: if isSignedIn() && existing().uid == request.auth.uid;
+      allow create: if isValidId(userId) && isVerifiedUser() && isOwner(userId) &&
+        isValidUserProfile(incoming()) &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+      allow update: if isValidId(userId) && isVerifiedUser() && isOwner(userId) &&
+        isValidUserProfile(incoming()) &&
+        incoming().uid == existing().uid &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'full_name', 'profile_image', 'preferred_language', 'theme_mode', 'updatedAt'
+        ]);
+      allow delete: if false;
+
+      match /private/{docId} {
+        allow get: if isValidId(userId) && isValidId(docId) && isOwner(userId);
+        allow list: if isOwner(userId) && existing().uid == request.auth.uid;
+        allow create: if isValidId(userId) && isValidId(docId) && docId == 'info' &&
+          isVerifiedUser() && isOwner(userId) &&
+          isValidUserPrivateInfo(incoming()) &&
+          incoming().createdAt == request.time &&
+          incoming().updatedAt == request.time;
+        allow update: if isValidId(userId) && isValidId(docId) && docId == 'info' &&
+          isVerifiedUser() && isOwner(userId) &&
+          isValidUserPrivateInfo(incoming()) &&
+          incoming().uid == existing().uid &&
+          incoming().createdAt == existing().createdAt &&
+          incoming().updatedAt == request.time &&
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'email', 'notify_scan_complete', 'notify_critical_bugs', 'notify_patch_tests', 'updatedAt'
+          ]);
+        allow delete: if false;
+      }
+
+      match /notifications/{notificationId} {
+        allow get: if isValidId(userId) && isValidId(notificationId) && isOwner(userId);
+        allow list: if isOwner(userId) && existing().userId == request.auth.uid;
+        allow create: if isValidId(userId) && isValidId(notificationId) &&
+          isVerifiedUser() && isOwner(userId) &&
+          isValidNotification(incoming()) &&
+          incoming().createdAt == request.time;
+        allow update: if isValidId(userId) && isValidId(notificationId) &&
+          isVerifiedUser() && isOwner(userId) &&
+          isValidNotification(incoming()) &&
+          incoming().userId == existing().userId &&
+          incoming().createdAt == existing().createdAt &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['is_read']);
+        allow delete: if isValidId(userId) && isValidId(notificationId) && isOwner(userId);
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // Projects & Subcollections (Master Gate + Cost-Optimized List Queries)
+    // -----------------------------------------------------------------------
+    match /projects/{projectId} {
+      allow get: if isValidId(projectId) && isSignedIn() && (resource == null || existing().userId == request.auth.uid);
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isValidId(projectId) && isVerifiedUser() &&
+        isValidProject(incoming()) &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+      allow update: if isValidId(projectId) && isVerifiedUser() &&
+        isValidProject(incoming()) &&
+        existing().userId == request.auth.uid &&
+        incoming().userId == existing().userId &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time && (
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'project_status', 'file_count', 'bug_count', 'fixed_count', 'updatedAt'
+          ]) ||
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'project_name', 'description', 'programming_language', 'updatedAt'
+          ])
+        );
+      allow delete: if isValidId(projectId) && isSignedIn() && existing().userId == request.auth.uid;
+
+      match /files/{fileId} {
+        allow get: if isValidId(projectId) && isValidId(fileId) && isProjectOwner(projectId);
+        allow list: if isSignedIn() && existing().userId == request.auth.uid;
+        allow create: if isValidId(projectId) && isValidId(fileId) && isVerifiedUser() &&
+          isValidProjectFile(incoming(), projectId) &&
+          incoming().createdAt == request.time &&
+          incoming().updatedAt == request.time &&
+          isProjectOwner(projectId);
+        allow update: if isValidId(projectId) && isValidId(fileId) && isVerifiedUser() &&
+          isValidProjectFile(incoming(), projectId) &&
+          incoming().userId == existing().userId &&
+          incoming().projectId == existing().projectId &&
+          incoming().createdAt == existing().createdAt &&
+          incoming().updatedAt == request.time &&
+          isProjectOwner(projectId) &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['content', 'file_size', 'updatedAt']);
+        allow delete: if isValidId(projectId) && isValidId(fileId) && isProjectOwner(projectId);
+      }
+
+      match /scans/{scanId} {
+        allow get: if isValidId(projectId) && isValidId(scanId) && isProjectOwner(projectId);
+        allow list: if isSignedIn() && existing().userId == request.auth.uid;
+        allow create: if isValidId(projectId) && isValidId(scanId) && isVerifiedUser() &&
+          isValidScan(incoming(), projectId) &&
+          incoming().startedAt == request.time &&
+          incoming().updatedAt == request.time &&
+          isProjectOwner(projectId);
+        allow update: if isValidId(projectId) && isValidId(scanId) && isVerifiedUser() &&
+          isValidScan(incoming(), projectId) &&
+          existing().scan_status != 'Completed' &&
+          incoming().userId == existing().userId &&
+          incoming().projectId == existing().projectId &&
+          incoming().startedAt == existing().startedAt &&
+          incoming().updatedAt == request.time &&
+          isProjectOwner(projectId) &&
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'scan_status', 'current_stage', 'progress_percentage', 'scanned_files',
+            'total_files', 'total_bugs', 'error_message', 'updatedAt'
+          ]);
+        allow delete: if isValidId(projectId) && isValidId(scanId) && isProjectOwner(projectId);
+      }
+
+      match /bugs/{bugId} {
+        allow get: if isValidId(projectId) && isValidId(bugId) && isProjectOwner(projectId);
+        allow list: if isSignedIn() && existing().userId == request.auth.uid;
+        allow create: if isValidId(projectId) && isValidId(bugId) && isVerifiedUser() &&
+          isValidBug(incoming(), projectId) &&
+          incoming().createdAt == request.time &&
+          incoming().updatedAt == request.time &&
+          isProjectOwner(projectId);
+        allow update: if isValidId(projectId) && isValidId(bugId) && isVerifiedUser() &&
+          isValidBug(incoming(), projectId) &&
+          incoming().userId == existing().userId &&
+          incoming().projectId == existing().projectId &&
+          incoming().createdAt == existing().createdAt &&
+          incoming().updatedAt == request.time &&
+          isProjectOwner(projectId) && (
+            incoming().diff(existing()).affectedKeys().hasOnly(['bug_status', 'updatedAt']) ||
+            incoming().diff(existing()).affectedKeys().hasOnly([
+              'bug_description', 'evidence', 'end_line', 'original_code', 'bug_status', 'updatedAt'
+            ]) ||
+            incoming().diff(existing()).affectedKeys().hasOnly([
+              'bug_description', 'root_cause', 'why_it_occurs', 'triggering_condition',
+              'expected_behavior', 'actual_behavior', 'potential_impact', 'suggested_solution',
+              'confidence_score', 'updatedAt'
+            ])
+          );
+        allow delete: if isValidId(projectId) && isValidId(bugId) && isProjectOwner(projectId);
+      }
+
+      match /patches/{patchId} {
+        allow get: if isValidId(projectId) && isValidId(patchId) && isProjectOwner(projectId);
+        allow list: if isSignedIn() && existing().userId == request.auth.uid;
+        allow create: if isValidId(projectId) && isValidId(patchId) && isVerifiedUser() &&
+          isValidPatch(incoming(), projectId) &&
+          incoming().createdAt == request.time &&
+          incoming().updatedAt == request.time &&
+          isProjectOwner(projectId);
+        allow update: if isValidId(projectId) && isValidId(patchId) && isVerifiedUser() &&
+          isValidPatch(incoming(), projectId) &&
+          incoming().userId == existing().userId &&
+          incoming().projectId == existing().projectId &&
+          incoming().createdAt == existing().createdAt &&
+          incoming().updatedAt == request.time &&
+          isProjectOwner(projectId) && (
+            incoming().diff(existing()).affectedKeys().hasOnly(['patch_status', 'updatedAt']) ||
+            incoming().diff(existing()).affectedKeys().hasOnly(['validation_status', 'updatedAt']) ||
+            incoming().diff(existing()).affectedKeys().hasOnly(['patch_status', 'validation_status', 'updatedAt'])
+          );
+        allow delete: if isValidId(projectId) && isValidId(patchId) && isProjectOwner(projectId);
+      }
+
+      match /testResults/{resultId} {
+        allow get: if isValidId(projectId) && isValidId(resultId) && isProjectOwner(projectId);
+        allow list: if isSignedIn() && existing().userId == request.auth.uid;
+        allow create: if isValidId(projectId) && isValidId(resultId) && isVerifiedUser() &&
+          isValidTestResult(incoming(), projectId) &&
+          incoming().createdAt == request.time &&
+          isProjectOwner(projectId);
+        allow update: if false;
+        allow delete: if isValidId(projectId) && isValidId(resultId) && isProjectOwner(projectId);
+      }
+
+      match /history/{historyId} {
+        allow get: if isValidId(projectId) && isValidId(historyId) && isProjectOwner(projectId);
+        allow list: if isSignedIn() && existing().userId == request.auth.uid;
+        allow create: if isValidId(projectId) && isValidId(historyId) && isVerifiedUser() &&
+          isValidHistoryRecord(incoming(), projectId) &&
+          incoming().createdAt == request.time &&
+          isProjectOwner(projectId);
+        allow update: if false;
+        allow delete: if isValidId(projectId) && isValidId(historyId) && isProjectOwner(projectId);
+      }
+    }
+  }
+}

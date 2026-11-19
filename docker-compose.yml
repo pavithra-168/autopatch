@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: autopatch_postgres
+    environment:
+      POSTGRES_DB: autopatch_db
+      POSTGRES_USER: autopatch
+      POSTGRES_PASSWORD: autopatch
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: autopatch_redis
+    ports:
+      - "6379:6379"
+
+  backend:
+    build: ./backend
+    container_name: autopatch_backend
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+psycopg://autopatch:autopatch@postgres:5432/autopatch_db
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./storage:/app/storage
+
+  worker:
+    build: ./backend
+    container_name: autopatch_celery
+    command: celery -A app.workers.celery_app worker --loglevel=info
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+psycopg://autopatch:autopatch@postgres:5432/autopatch_db
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./storage:/app/storage
+
+volumes:
+  pgdata:

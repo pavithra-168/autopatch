@@ -1,0 +1,1241 @@
+# MASTER DEVELOPMENT PROMPT
+# AUTOPATCH – AUTONOMOUS SOFTWARE BUG DETECTION AND REPAIR SYSTEM
+
+## 1. PROJECT OVERVIEW
+
+I want you to develop a complete, professional, fully functional web application named:
+
+**AutoPatch – Autonomous Software Bug Detection and Repair System**
+
+AutoPatch is an intelligent software debugging and automated code repair platform designed for software developers who face problems such as logical errors, runtime crashes, incorrect outputs, security vulnerabilities, edge-case failures and unexpected software behavior.
+
+The primary objective is to develop a real-world platform where developers can upload their software projects, analyze source code, identify bugs, understand their root causes, receive suggested code repairs, compare original and modified code, test the proposed fixes and approve changes.
+
+This must be a real, working web application, not just a frontend prototype or static dashboard.
+
+The application must provide an end-to-end debugging and repair workflow.
+
+**Complete workflow:**
+
+REGISTER → LOGIN → UPLOAD PROJECT → SCAN PROJECT → DETECT BUGS → ANALYZE ROOT CAUSE → GENERATE PATCH → COMPARE CODE → APPROVE PATCH → RUN TESTS → VALIDATE REPAIR → GENERATE REPORT.
+
+---
+
+# 2. TECHNOLOGY STACK
+
+Use the following technologies.
+
+### Frontend
+- React.js
+- Vite
+- JavaScript
+- Tailwind CSS
+- React Router
+- Lucide React
+- Recharts
+- Monaco Editor for code editing and comparison
+
+### Backend
+- Python 3.11+
+- FastAPI
+- Uvicorn
+- Pydantic
+- SQLAlchemy ORM
+
+### Database
+- PostgreSQL
+- Alembic for database migrations
+
+### Authentication
+- JWT authentication
+- Argon2 or bcrypt password hashing
+- Secure session and refresh-token management
+
+### Bug Detection and Analysis
+- Python AST
+- Ruff
+- Bandit
+- Pytest
+- Extensible static-analysis architecture for additional programming languages
+
+### Background Processing
+- Celery
+- Redis
+
+### Repository Integration
+- Git
+- GitHub API
+- Secure repository cloning
+
+### Deployment and Development
+- Docker
+- Docker Compose
+- VS Code
+- Environment variables using .env
+
+Keep the architecture modular, scalable, maintainable and easy to extend.
+
+---
+
+# 3. FRONTEND DEVELOPMENT
+
+Develop a premium, professional developer-oriented SaaS interface.
+
+IMPORTANT:
+If an existing React frontend is provided, inspect it first and preserve its existing design, page structure, colors, components and navigation. Do not unnecessarily redesign or replace it.
+
+If no frontend exists, create the complete frontend using the following specifications.
+
+### Design System
+
+Use a premium dark-themed interface.
+
+Colors:
+- Primary background: #080F1D
+- Secondary background: #111C2D
+- Primary accent: #3B82F6
+- Gold highlight: #D5AD60
+- Success: Green
+- Error: Red
+
+Typography:
+- Inter for normal text.
+- Monospace for code.
+
+Design requirements:
+- Modern developer dashboard.
+- Professional sidebar navigation.
+- Top navigation with user profile and notifications.
+- Responsive desktop, tablet and mobile layouts.
+- Clean cards, tables, charts and modals.
+- Smooth transitions.
+- Consistent typography and spacing.
+- Professional code editor interface.
+
+Avoid unnecessary animations, excessive gradients and generic chatbot-style designs.
+
+## 4. COMPLETE FRONTEND PAGE REQUIREMENTS
+
+Build the following 14 pages.
+
+### PAGE 1 – LANDING PAGE
+
+Include:
+- AutoPatch logo.
+- Navigation menu.
+- Hero headline: "Find Bugs. Understand Them. Fix Them."
+- Supporting description.
+- Get Started button.
+- Explore Features button.
+- How It Works section.
+- Core capabilities.
+- Sample bug detection preview.
+- Product benefits.
+- Footer.
+
+### PAGE 2 – LOGIN PAGE
+
+Include:
+- Email.
+- Password.
+- Login button.
+- Forgot password.
+- Registration navigation.
+- Password visibility toggle.
+- Backend authentication integration.
+
+### PAGE 3 – REGISTRATION PAGE
+
+Include:
+- Full name.
+- Email.
+- Password.
+- Confirm password.
+- Create Account button.
+- Login navigation.
+- Backend account creation.
+
+### PAGE 4 – DEVELOPER DASHBOARD
+
+Create a professional analytics dashboard.
+
+Initially use these illustrative dummy values for UI development:
+
+- Total Projects: 12
+- Projects Scanned: 8
+- Bugs Detected: 47
+- Critical Bugs: 5
+- Bugs Fixed: 31
+- Pending Review: 7
+
+Include:
+- Statistics cards.
+- Bug severity pie chart.
+- Weekly bug detection chart.
+- Recent projects table.
+- Recent activities.
+- Quick Upload button.
+- Notifications.
+
+After backend integration, replace all dummy statistics with actual database values.
+
+### PAGE 5 – UPLOAD PROJECT
+
+Include:
+- Drag-and-drop ZIP upload.
+- Browse Files button.
+- GitHub repository URL input.
+- Project name.
+- Project description.
+- Programming language selector.
+- Selected file information.
+- Upload progress bar.
+- Start Analysis button.
+
+Support Python, Java, JavaScript, C, C++ and other common programming languages where applicable.
+
+Prioritize complete Python analysis in the first release.
+
+### PAGE 6 – PROJECT ANALYSIS
+
+Display:
+- Project name.
+- Files scanned.
+- Total files.
+- Scanning progress.
+- Current analysis stage.
+- Detected issue count.
+
+Analysis stages:
+1. Project Structure Analysis.
+2. Dependency Analysis.
+3. Code Scanning.
+4. Bug Detection.
+5. Analysis Completed.
+
+Use real backend job progress, not fake progress presented as actual analysis.
+
+### PAGE 7 – BUG DETECTION RESULTS
+
+Create a professional bug-report table.
+
+Use these example records only during frontend development:
+
+| Bug ID | Bug Title | File | Severity | Status |
+|---|---|---|---|---|
+| BUG-001 | Division by zero | calculator.py | Critical | Open |
+| BUG-002 | Missing input validation | marks.py | High | Open |
+| BUG-003 | Undefined variable | student.py | Medium | Open |
+| BUG-004 | Incorrect loop condition | sorting.py | High | Fixed |
+| BUG-005 | Unhandled exception | main.py | Medium | Open |
+
+Include:
+- Bug ID.
+- Bug title.
+- File name.
+- Line number.
+- Severity.
+- Bug category.
+- Confidence score.
+- Bug status.
+- Search.
+- Filters.
+- View Details button.
+
+### PAGE 8 – ROOT CAUSE ANALYSIS
+
+Display:
+- Bug description.
+- Affected file.
+- Line number.
+- Original code.
+- Root cause explanation.
+- Why the issue occurs.
+- Triggering input or condition.
+- Expected behavior.
+- Actual behavior, when reproduced.
+- Potential impact.
+- Recommended solution.
+- Confidence score.
+
+Explanations must be understandable to developers.
+
+### PAGE 9 – AI PATCH SUGGESTIONS
+
+Include:
+- Original code.
+- Suggested corrected code.
+- Explanation of modifications.
+- Reason for the repair.
+- Generate Patch button.
+- Approve Patch button.
+- Reject Patch button.
+
+Display the proposed patch before applying it.
+
+### PAGE 10 – CODE COMPARISON
+
+Create a professional side-by-side code comparison interface.
+
+Left panel: Original Code.
+
+Right panel: Suggested Fixed Code.
+
+Include:
+- Line numbers.
+- Highlighted deleted lines.
+- Highlighted added lines.
+- Changed code sections.
+- Explanation of changes.
+- Approve Changes button.
+- Reject Changes button.
+
+Use Monaco Editor or a suitable code-diff library.
+
+### PAGE 11 – TESTING AND VALIDATION
+
+Initially use the following illustrative UI data:
+
+- Total Tests: 20
+- Passed: 18
+- Failed: 2
+- Execution Time: 2.4 seconds
+
+Include:
+- Run Tests button.
+- Passed test cases.
+- Failed test cases.
+- Test descriptions.
+- Before-fix results.
+- After-fix results.
+- Regression testing.
+- Final validation status.
+
+Show actual backend test results after integration.
+
+### PAGE 12 – FINAL BUG REPORT
+
+Include:
+- Project information.
+- Total bugs.
+- Severity distribution.
+- Root cause explanations.
+- Suggested patches.
+- Test results.
+- Patch approval status.
+- Download Report button.
+
+Generate downloadable reports using actual project data.
+
+### PAGE 13 – BUG HISTORY
+
+Include:
+- Bug ID.
+- Original issue.
+- Suggested patch.
+- Date and time.
+- Approval or rejection status.
+- Test results.
+- Change history.
+- Rollback functionality where supported.
+
+### PAGE 14 – SETTINGS
+
+Include:
+- Developer profile.
+- Account information.
+- Preferred programming language.
+- Notification preferences.
+- Theme settings.
+- Account security.
+- Logout.
+
+---
+
+# 5. BACKEND DEVELOPMENT USING PYTHON
+
+Develop the complete backend using FastAPI.
+
+The backend must handle:
+
+- User registration and authentication.
+- Project management.
+- File uploads.
+- GitHub repository integration.
+- Project scanning.
+- Bug detection.
+- Root cause analysis.
+- Patch generation.
+- Patch approval.
+- Patch application.
+- Testing and validation.
+- Notifications.
+- Reports.
+- Change history.
+
+Use modular routers, services, models and schemas.
+
+Do not place all backend logic inside a single Python file.
+
+---
+
+# 6. POSTGRESQL DATABASE DESIGN
+
+Create a PostgreSQL database named:
+
+autopatch_db
+
+Create the following tables.
+
+### USERS
+- id
+- full_name
+- email
+- password_hash
+- profile_image
+- preferred_language
+- created_at
+- updated_at
+
+### PROJECTS
+- id
+- user_id
+- project_name
+- description
+- programming_language
+- source_type
+- repository_url
+- default_branch
+- project_status
+- created_at
+- updated_at
+
+### PROJECT_FILES
+- id
+- project_id
+- file_name
+- file_path
+- file_extension
+- file_size
+- programming_language
+- created_at
+
+### SCAN_JOBS
+- id
+- project_id
+- scan_status
+- progress_percentage
+- total_files
+- scanned_files
+- total_bugs
+- started_at
+- completed_at
+- error_message
+
+### BUGS
+- id
+- project_id
+- scan_id
+- bug_title
+- bug_description
+- bug_category
+- severity
+- confidence_score
+- file_path
+- start_line
+- end_line
+- original_code
+- root_cause
+- triggering_condition
+- expected_behavior
+- actual_behavior
+- suggested_solution
+- bug_status
+- created_at
+
+### PATCHES
+- id
+- bug_id
+- original_code
+- proposed_code
+- code_diff
+- explanation
+- patch_status
+- generated_at
+- reviewed_at
+- reviewed_by
+
+### TEST_RESULTS
+- id
+- patch_id
+- test_name
+- test_description
+- test_status
+- execution_time
+- error_message
+- output
+- created_at
+
+### CHANGE_HISTORY
+- id
+- project_id
+- bug_id
+- patch_id
+- user_id
+- action_type
+- previous_value
+- new_value
+- description
+- created_at
+
+### NOTIFICATIONS
+- id
+- user_id
+- title
+- message
+- notification_type
+- is_read
+- created_at
+
+### REPOSITORY_CONNECTIONS
+- id
+- user_id
+- provider
+- repository_name
+- repository_url
+- installation_reference
+- default_branch
+- created_at
+
+Implement:
+- Primary keys.
+- Foreign keys.
+- Appropriate relationships.
+- Unique constraints.
+- Indexes.
+- Database migrations.
+- Timestamps.
+- Data validation.
+
+Store source files in controlled file storage, not unnecessarily as large database blobs. Store their metadata and storage references in PostgreSQL.
+
+All project, bug, patch and history records must be associated with their respective users and projects.
+
+---
+
+# 7. AUTHENTICATION AND USER MANAGEMENT
+
+Implement complete registration and login.
+
+Requirements:
+1. Create user accounts.
+2. Validate email addresses.
+3. Prevent duplicate accounts.
+4. Hash passwords securely.
+5. Authenticate users.
+6. Generate JWT access tokens.
+7. Implement secure refresh-token handling.
+8. Implement logout and session revocation.
+9. Protect private API endpoints.
+10. Retrieve authenticated user profiles.
+
+The frontend must display appropriate loading, success and error messages.
+
+Users must only access their own projects and related data.
+
+---
+
+# 8. PROJECT UPLOAD AND REPOSITORY MANAGEMENT
+
+Implement actual project uploads.
+
+Features:
+- ZIP file uploads.
+- File-type validation.
+- File-size validation.
+- Secure ZIP extraction.
+- Project folder structure detection.
+- Programming language detection.
+- Source file identification.
+- Project metadata storage.
+- Project listing.
+- Project details.
+- Project deletion.
+- Updated project versions.
+
+For GitHub:
+- Connect authorized GitHub accounts.
+- Support public repository cloning.
+- Support private repository access through GitHub App or OAuth authorization.
+- Select repositories.
+- Select branches.
+- Clone repositories securely.
+- Record repository and commit information.
+- Analyze selected repository contents.
+
+Never request GitHub passwords or store plaintext access tokens.
+
+Do not allow users to provide arbitrary server filesystem paths.
+
+---
+
+# 9. REAL BUG DETECTION ENGINE
+
+Develop a modular software analysis engine.
+
+Initially prioritize Python source code.
+
+### A. Python AST
+
+Analyze source code for detectable problems such as:
+- Undefined names.
+- Suspicious logical conditions.
+- Unreachable code patterns.
+- Potential division-by-zero conditions.
+- Missing input validation patterns.
+- Suspicious return paths.
+- Common programming mistakes.
+
+Clearly distinguish potential bugs from proven runtime failures.
+
+### B. Ruff
+
+Integrate Ruff to identify:
+- Syntax and parsing issues.
+- Undefined names.
+- Unused imports.
+- Common programming mistakes.
+- Code-quality issues.
+
+### C. Bandit
+
+Integrate Bandit for Python security analysis.
+
+### D. Pytest
+
+Execute existing project tests.
+
+### E. Edge-Case Analysis
+
+Generate or run appropriate tests for:
+- Empty input.
+- Null values.
+- Negative values.
+- Boundary values.
+- Large values.
+- Invalid data types.
+- Unexpected inputs.
+
+Every detected issue must contain evidence such as analyzer output, affected source location, or a reproducible test where available.
+
+Do not claim that every possible bug has been detected.
+
+Build a common analyzer interface so other languages can be added later using suitable language-specific tools.
+
+---
+
+# 10. ROOT CAUSE ANALYSIS AND AI INTEGRATION
+
+Integrate an AI provider through a configurable service.
+
+The AI service should analyze:
+- Source code.
+- Static analyzer findings.
+- Relevant project context.
+- Error messages.
+- Test results.
+
+Return structured results containing:
+- Bug description.
+- Root cause.
+- Triggering condition.
+- Expected behavior.
+- Actual behavior.
+- Potential impact.
+- Recommended solution.
+- Confidence score.
+
+Use Pydantic schemas to validate AI responses.
+
+Keep API keys inside environment variables.
+
+AI-generated explanations must not be treated as proven facts unless supported by evidence.
+
+If the AI service is unavailable, the system should still provide available static-analysis findings.
+
+Never execute AI-generated code automatically.
+
+---
+
+# 11. AUTOMATIC PATCH GENERATION
+
+Develop a patch-generation service.
+
+For each eligible bug:
+
+1. Retrieve the affected source file.
+2. Identify the relevant code section.
+3. Generate a proposed repair.
+4. Validate the patch against the original file version.
+5. Generate a unified code diff.
+6. Save the original code.
+7. Save the proposed code.
+8. Save the explanation.
+9. Mark the patch as Pending Approval.
+
+The frontend must display the original and modified code side by side.
+
+The developer must be able to approve or reject every suggested patch.
+
+Never overwrite the original source code automatically.
+
+Before applying a patch:
+- Verify user ownership.
+- Verify patch validity.
+- Check the original file has not changed.
+- Create an immutable backup or version.
+- Record the operation in change history.
+
+For GitHub repositories, apply approved changes to a separate repair branch. Never push directly to the default branch without explicit authorization.
+
+---
+
+# 12. SAFE PATCH APPLICATION AND VALIDATION
+
+Implement patch application only after developer approval.
+
+After applying a patch:
+- Preserve the original source version.
+- Save the updated version.
+- Record the approved change.
+- Update patch status.
+- Trigger validation tests.
+- Provide a rollback mechanism.
+
+Do not mark a bug as fixed simply because a patch was generated or applied.
+
+Distinguish between:
+- Patch Generated.
+- Patch Approved.
+- Patch Applied.
+- Tests Passed.
+- Tests Failed.
+- Validation Incomplete.
+
+Only report successful repair when supported by the actual validation results.
+
+---
+
+# 13. TESTING AND VALIDATION ENGINE
+
+Implement actual testing.
+
+Run:
+- Existing project tests.
+- Pytest tests for Python projects.
+- Generated edge-case tests where appropriate.
+- Regression tests.
+- Static-analysis checks after patching.
+
+Return:
+- Total test cases.
+- Passed tests.
+- Failed tests.
+- Skipped tests.
+- Execution time.
+- Test names.
+- Error messages.
+- Before-patch results.
+- After-patch results.
+- Final validation status.
+
+The system must check whether the fix resolves the reported issue without breaking previously working features.
+
+---
+
+# 14. SANDBOX SECURITY
+
+This is a critical requirement.
+
+Developers will upload potentially untrusted source code.
+
+Never execute uploaded projects directly on the main backend server.
+
+Use isolated Docker containers or an equivalent secure sandbox.
+
+Implement:
+- Non-root execution.
+- CPU limits.
+- Memory limits.
+- Execution time limits.
+- Restricted filesystem access.
+- Network disabled by default.
+- No privileged containers.
+- Safe ZIP extraction.
+- ZIP path traversal protection.
+- File-size limits.
+- Safe subprocess execution.
+- Temporary workspace cleanup.
+
+Treat every uploaded project as untrusted.
+
+Never execute an unapproved patch.
+
+---
+
+# 15. COMPLETE API DEVELOPMENT
+
+Create REST API endpoints using FastAPI.
+
+### AUTHENTICATION
+
+POST /api/auth/register
+
+POST /api/auth/login
+
+POST /api/auth/refresh
+
+POST /api/auth/logout
+
+GET /api/auth/me
+
+### PROJECT MANAGEMENT
+
+POST /api/projects/upload
+
+POST /api/projects/github
+
+GET /api/projects
+
+GET /api/projects/{project_id}
+
+DELETE /api/projects/{project_id}
+
+GET /api/projects/{project_id}/files
+
+### PROJECT ANALYSIS
+
+POST /api/projects/{project_id}/scan
+
+GET /api/scans/{scan_id}
+
+GET /api/scans/{scan_id}/bugs
+
+GET /api/projects/{project_id}/statistics
+
+### BUG MANAGEMENT
+
+GET /api/projects/{project_id}/bugs
+
+GET /api/bugs/{bug_id}
+
+PATCH /api/bugs/{bug_id}/status
+
+POST /api/bugs/{bug_id}/analyze
+
+### PATCH MANAGEMENT
+
+POST /api/bugs/{bug_id}/patches
+
+GET /api/bugs/{bug_id}/patches
+
+GET /api/patches/{patch_id}
+
+GET /api/patches/{patch_id}/diff
+
+POST /api/patches/{patch_id}/approve
+
+POST /api/patches/{patch_id}/reject
+
+POST /api/patches/{patch_id}/apply
+
+### TESTING
+
+POST /api/patches/{patch_id}/test
+
+GET /api/patches/{patch_id}/test-results
+
+### HISTORY
+
+GET /api/projects/{project_id}/history
+
+### NOTIFICATIONS
+
+GET /api/notifications
+
+PATCH /api/notifications/{notification_id}/read
+
+### REPORTS
+
+GET /api/projects/{project_id}/report
+
+GET /api/projects/{project_id}/report/download
+
+Use proper HTTP status codes, pagination, request validation and consistent JSON error responses.
+
+Use WebSockets or polling for live analysis progress.
+
+This API list is the initial contract. Keep the frontend and backend synchronized if implementation details require adjustments.
+
+---
+
+# 16. FRONTEND AND BACKEND CONNECTION
+
+Create centralized API services in React.
+
+Recommended frontend structure:
+
+src/
+  services/
+    api.js
+    authService.js
+    projectService.js
+    bugService.js
+    patchService.js
+    testService.js
+    reportService.js
+
+Use a configurable API URL:
+
+VITE_API_BASE_URL=http://localhost:8000/api
+
+Connect every frontend page and action to the appropriate backend endpoint.
+
+Requirements:
+- Replace hardcoded dummy data with real API responses.
+- Implement protected routes.
+- Implement authentication state.
+- Connect login and registration.
+- Connect project uploads.
+- Connect project listings.
+- Connect scanning.
+- Connect bug details.
+- Connect root cause analysis.
+- Connect patch generation.
+- Connect code comparison.
+- Connect patch approval and rejection.
+- Connect testing.
+- Connect notifications.
+- Connect reports and history.
+- Display loading states.
+- Display error messages.
+- Display success notifications.
+- Handle empty database states.
+- Implement file upload progress.
+
+Do not leave any important button non-functional.
+
+All displayed project information must come from the backend after integration.
+
+---
+
+# 17. BACKGROUND JOB PROCESSING
+
+Use Celery and Redis for long-running operations.
+
+Create background jobs for:
+- Repository cloning.
+- ZIP extraction.
+- Source-code scanning.
+- Bug detection.
+- Root cause analysis.
+- Patch generation.
+- Patch application.
+- Test execution.
+- Report generation.
+
+Implement job states:
+- Pending.
+- Running.
+- Completed.
+- Failed.
+- Cancelled.
+
+Return actual progress and error information to the frontend.
+
+Do not block API requests while large projects are being analyzed.
+
+---
+
+# 18. GITHUB REPOSITORY INTEGRATION
+
+Make GitHub integration functional.
+
+Required workflow:
+
+1. Developer authorizes GitHub access.
+2. Developer selects a repository.
+3. Developer selects a branch.
+4. AutoPatch clones the repository into an isolated workspace.
+5. AutoPatch analyzes the source files.
+6. Bugs are displayed.
+7. Suggested patches are generated.
+8. Developer reviews and approves a patch.
+9. Approved changes are applied to a separate repair branch.
+10. Developer can review and optionally create a pull request.
+
+Prioritize public repositories and ZIP uploads in the first release.
+
+Implement secure private repository access using appropriate GitHub authorization.
+
+---
+
+# 19. DATABASE AND APPLICATION SECURITY
+
+Implement:
+- SQL injection protection through SQLAlchemy ORM.
+- Password hashing.
+- Authentication and authorization.
+- User-specific project access.
+- File upload validation.
+- Secure secret management.
+- CORS configuration.
+- Rate limiting for sensitive endpoints.
+- Database transactions.
+- Secure logging.
+- Input validation.
+- Token protection.
+- Safe repository operations.
+
+Never commit .env files, API keys, passwords or private credentials to GitHub.
+
+---
+
+# 20. AUTOMATED TESTING
+
+Write actual backend tests.
+
+Test:
+- Registration.
+- Login.
+- Unauthorized access.
+- Project upload.
+- Project retrieval.
+- User project ownership.
+- Source-code analysis.
+- Bug detection.
+- Root cause analysis.
+- Patch generation.
+- Patch approval.
+- Patch rejection.
+- Patch application.
+- Test execution.
+- Change history.
+- Report generation.
+
+Perform end-to-end integration testing.
+
+Verify the complete workflow:
+
+REGISTER → LOGIN → UPLOAD PROJECT → SCAN → DETECT BUG → ANALYZE ROOT CAUSE → GENERATE PATCH → APPROVE PATCH → APPLY PATCH → RUN TESTS → GENERATE REPORT.
+
+Verify that actual records are saved in PostgreSQL and retrieved correctly.
+
+---
+
+# 21. COMPLETE PROJECT FOLDER STRUCTURE
+
+Use a clean structure similar to:
+
+AUTOPATCH/
+│
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── layouts/
+│   │   ├── services/
+│   │   ├── hooks/
+│   │   ├── data/
+│   │   ├── assets/
+│   │   └── utils/
+│   ├── package.json
+│   └── .env.example
+│
+├── backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── core/
+│   │   ├── database/
+│   │   ├── models/
+│   │   ├── schemas/
+│   │   ├── routers/
+│   │   ├── services/
+│   │   ├── analyzers/
+│   │   ├── workers/
+│   │   ├── utils/
+│   │   └── tests/
+│   ├── alembic/
+│   ├── requirements.txt
+│   ├── Dockerfile
+│   └── .env.example
+│
+├── storage/
+│   └── uploaded_projects/
+│
+├── docker-compose.yml
+├── .gitignore
+└── README.md
+
+Adapt the structure to the existing frontend repository rather than unnecessarily replacing its files.
+
+---
+
+# 22. ENVIRONMENT CONFIGURATION
+
+Create .env.example files.
+
+Backend configuration should include:
+
+DATABASE_URL
+SECRET_KEY
+ACCESS_TOKEN_EXPIRE_MINUTES
+REDIS_URL
+AI_PROVIDER_API_KEY
+GITHUB_CLIENT_ID
+GITHUB_CLIENT_SECRET
+GITHUB_CALLBACK_URL
+STORAGE_PATH
+
+Frontend configuration:
+
+VITE_API_BASE_URL
+
+Use placeholders only.
+
+Do not expose backend secrets to the frontend.
+
+---
+
+# 23. RUNNING THE APPLICATION IN VS CODE
+
+Provide complete setup instructions.
+
+The application must be easy to run locally.
+
+Include:
+
+1. Python installation requirements.
+2. Node.js installation requirements.
+3. PostgreSQL configuration.
+4. Redis configuration.
+5. Environment variable setup.
+6. Python virtual environment creation.
+7. Backend dependency installation.
+8. Database creation.
+9. Alembic migration commands.
+10. Backend startup commands.
+11. Celery worker startup commands.
+12. Frontend dependency installation.
+13. Frontend startup commands.
+14. Docker Compose startup instructions.
+15. Troubleshooting instructions.
+
+Swagger documentation must be available at:
+
+http://localhost:8000/docs
+
+Document the complete startup process in README.md.
+
+---
+
+# 24. DEVELOPMENT ORDER
+
+Develop the application in the following order.
+
+PHASE 1: Inspect the existing frontend and establish the project architecture.
+
+PHASE 2: Configure PostgreSQL, SQLAlchemy and Alembic.
+
+PHASE 3: Implement authentication and user management.
+
+PHASE 4: Implement project upload and project management.
+
+PHASE 5: Implement GitHub repository integration.
+
+PHASE 6: Implement Python source-code analysis.
+
+PHASE 7: Implement bug detection and root cause analysis.
+
+PHASE 8: Implement AI patch generation.
+
+PHASE 9: Implement patch approval and safe application.
+
+PHASE 10: Implement sandbox testing and regression validation.
+
+PHASE 11: Connect every frontend page to the backend.
+
+PHASE 12: Implement reports, notifications and change history.
+
+PHASE 13: Perform full integration testing and fix all identified errors.
+
+PHASE 14: Prepare the final runnable application and documentation.
+
+Complete and verify each phase before moving to the next.
+
+---
+
+# 25. FINAL ACCEPTANCE CRITERIA
+
+The project is considered complete only when:
+
+1. All 14 frontend pages work.
+2. The existing frontend design is preserved.
+3. User registration and login work.
+4. PostgreSQL stores real application data.
+5. Project uploads work.
+6. GitHub integration works for supported repository access.
+7. Real Python code analysis runs.
+8. Bugs are detected and stored in the database.
+9. Root cause explanations are generated.
+10. Patch suggestions produce reviewable code changes.
+11. Original and proposed code can be compared.
+12. Developers can approve or reject patches.
+13. Approved patches can be safely applied.
+14. Original code versions are preserved.
+15. Tests run in an isolated environment.
+16. Regression test results are displayed.
+17. Dashboard statistics come from the database.
+18. Notifications work.
+19. Bug history works.
+20. Reports can be generated and downloaded.
+21. API endpoints are tested.
+22. Frontend and backend integration works.
+23. All important buttons and forms function.
+24. The application runs locally using VS Code.
+25. Complete setup documentation is provided.
+
+No hardcoded dummy values should be presented as real results after integration.
+
+No fake bug detection, fake test results or fake patch application should be displayed.
+
+---
+
+# 26. FINAL INSTRUCTION TO THE DEVELOPER
+
+I want a complete, production-oriented, working full-stack web application.
+
+Do not stop after creating UI pages, Python files, API endpoints or database tables.
+
+Actually implement, connect, run and test the complete application.
+
+First inspect the existing project and understand its architecture.
+
+Then develop the backend, configure PostgreSQL, integrate the frontend, implement real source-code analysis, create patch-generation functionality, implement safe testing and verify the complete workflow.
+
+Preserve the existing frontend design.
+
+Keep the source code clean, modular, reusable and understandable.
+
+Do not skip any major functionality.
+
+If a feature requires an external API key or GitHub authorization, implement the integration correctly and document the configuration needed rather than pretending it works.
+
+If any requested capability cannot be fully implemented in the current development environment, clearly document the limitation and provide a working alternative where possible.
+
+**FINAL GOAL:**
+
+Deliver AutoPatch as a complete, executable, full-stack software debugging and repair platform that real software developers can use to upload projects, detect bugs, understand root causes, generate code repairs, validate fixes and safely maintain their software projects.
+
+The final deliverable must include the complete frontend source code, Python backend source code, PostgreSQL database configuration, API integrations, testing, Docker configuration and setup documentation.
